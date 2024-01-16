@@ -85,11 +85,70 @@ AVFrame* Splicer::MergeFrame(const std::vector<cv::Mat>& mats){
 }
 
 AVFrame* Splicer::cvmat_to_avframe(const cv::Mat image){
-    // TODO
+    //创建AVFrame结构体
+    AVFrame* frame = av_frame_alloc();
+    if (!frame){
+        throw std::runtime_error("Failed to allocate AVFrame");
+    }
+    int width = image.cols; // 图像宽度
+    int height = image.rows; // 图像高度
+    frame->format = AV_PIX_FMT_YUV420P; // 设置格式为YUV420P
+    frame->width = width;
+    frame->height = height;
+
+    //分配数据内存空间
+    int ret = av_frame_get_buffer(frame, 0);
+    if (ret < 0){
+        throw std::runtime_error("Failed to allocate AVFrame data");
+    }
+
+    //创建sws context以进行颜色空间转换
+    SwsContext* sws_ctx = sws_getContext(width, height, AV_PIX_FMT_RGB24, width, height, AV_PIX_FMT_YUV420P, nullptr, nullptr, nullptr);
+    if (!sws_ctx){
+        throw std::runtime_error("Failed to create SwsContext");
+    }
+
+    //创建临时存储转换后数据的缓冲区
+    uint8_t* converted_data[3];
+    int converted_linesize[3];
+    converted_data[0] = frame->data[0];
+    converted_data[1] = frame->data[1];
+    converted_data[2]  = frame->data[2];
+    converted_linesize[0] = frame->linesize[0];
+    converted_linesize[1] = frame->linesize[1];
+    converted_linesize[2] = frame->linesize[2];
+
+    //执行颜色空间转换
+    cv::Mat bgr_image;
+    cv::cvtColor(image, bgr_image, CV::COLOR_RGB2BGR);
+    const uint8_t* src_data[1]  = { bgr_image.data}; 
+    int src_linesize[1] = {static_cast<int>(bgr_image.step)};
+    sws_scale(sws_ctx, src_data, src_linesize, 0, converted_data, converted_linesize);
+
+    // 释放
+    sws_freeContext(sws_ctx);
+    return frame;
 }
 
 cv::Mat Splicer::avframe_to_cvmat(AVFrame* frame){
-    // TODO
+    // 创建一个新的 SwsContext 用于YUV到BGR的转换
+    SwsContext* conversion = sws_getContext(frame->width, frame->height, (AVPixelFormat)frame->format, frame->width, frame->height, AV_PIX_FMT_BGR24, SWS_FAST_BILINEAR, NULL, NULL, NULL);
+    // 创建一个新的 AVFrame 用于存储转换后的数据
+    AVFrame* converted_frame = av_frame_alloc();
+    converted_frame->format = AV_PIX_FMT_BGR24;
+    converted_frame->width = frame->width;
+    converted_frame->height = frame->height;
+    av_frame_get_buffer(converted_frame, 0);
+    //将YUV数据转换为BGR
+    sws_scale(conversion, frame->data, frame->linesize,0,frame->height,converted_frame->data,converted_frame->linesize);
+
+    //创建一个新的 cv::Mat 并将转换后的数据复制到其中
+    cv::Mat img = cv::Mat(converted_frame->height, converted_frame->width, CV_8UC3, converted_frame->data[0], converted_frame->linesize[0]).clone();
+
+    //释放已分配的资源
+    sws_freeContext(conversion);
+    av_frame_free(&converted_frame);
+    return img;
 }
 
 AVFrame* Splicer::Splice(const std::vector<AVFrame *>& frames)

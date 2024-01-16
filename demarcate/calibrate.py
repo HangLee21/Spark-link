@@ -105,6 +105,7 @@ def undistorted(path, index):
     # 显示去畸变后的图像
     cv2.imshow("Origin Image", image)
     cv2.imshow('Undistorted Image', undistorted_image)
+    cv2.imwrite("undistorted_image.jpg", undistorted_image)
     cv2.waitKey(0)
 
 def get_fish_eye(path, index):
@@ -128,10 +129,10 @@ def get_fish_eye(path, index):
     cv2.waitKey(0)
 
 if __name__ == '__main__':
-    for i in range(4):
-        get_data_json(i)
-    undistorted("../img/0_210.jpg", 0)
-    undistorted("../img/1_210.jpg", 0)
-    undistorted("../img/2_210.jpg", 0)
-    undistorted("../img/3_210.jpg", 0)
+    # for i in range(4):
+    #     get_data_json(i)
+    undistorted("../img/0_360.jpg", 0)
+    # undistorted("../img/1_210.jpg", 0)
+    # undistorted("../img/2_210.jpg", 0)
+    # undistorted("../img/3_210.jpg", 0)
     # get_fish_eye("../img/0_420.jpg", 0)
