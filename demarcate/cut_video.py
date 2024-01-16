@@ -201,7 +201,7 @@ class CameraCalibrator(object):
             print("Unable to open video.")
             return False
         # 获取视频文件名
-        video_name = "0.mp4"
+        video_name = video_path.split('/')[-1]
         video_name = video_name.split('.')[0]
         frame_count = cap.get(cv.CAP_PROP_FRAME_COUNT)
         h = cap.get(cv.CAP_PROP_FRAME_HEIGHT)
