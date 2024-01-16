@@ -5,8 +5,9 @@
 #include "splicer.h"
 #include <stdexcept>
 #include <bits/stdc++.h>
+#include <opencv2/opencv.hpp>
 
-const file_path = "../json/";
+const std::string file_path = "../json/";
 std::vector<std::string> json_name = {"0.json", "1.json", "2.json", "3.json"};
 namespace gtoe_emulation {
 
@@ -42,7 +43,6 @@ std::vector<AVFrame *> Splicer::Process(const std::vector<AVFrame *>& frames)
         std::ifstream file(json_file);
         if (!file.is_open()) {
             std::cerr << "无法打开JSON文件" << std::endl;
-            return 1;
         }
 
         // 解析JSON文件
@@ -62,7 +62,8 @@ std::vector<AVFrame *> Splicer::Process(const std::vector<AVFrame *>& frames)
 
         // 进行去畸变
         cv::undistort(distortedImage, undistortedImage, cameraMatrix, distortionCoefficients);
-        AVFrame* frame = mergeFrames.push_back(undistortedImage);
+        mergeFrames.push_back(undistortedImage);
+        frame = MergeFrame(mergeFrames);
     }
 
     // end merge
