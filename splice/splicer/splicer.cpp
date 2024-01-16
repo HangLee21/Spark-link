@@ -35,7 +35,7 @@ Splicer::~Splicer()
 }
 
 
-void Splice::hard_encode_mat(){
+void Splicer::hard_encode_mat(){
     // TODO
     cv::Mat camara_mat;
     camara_mat.create(3, 3, CV_64F);  // 创建一个3x3的单通道8位无符号整数矩阵
@@ -67,9 +67,9 @@ std::vector<AVFrame *> Splicer::Process(const std::vector<AVFrame *>& frames)
         // 进行去畸变
         cv::undistort(distortedImage, undistortedImage, cameraMatrix, distortionCoefficients);
         mergeFrames.push_back(undistortedImage);
-        frame = MergeFrame(mergeFrames);
+        
     }
-
+    frame = MergeFrame(mergeFrames);
     // end merge
     if (frame) {
         resultFrames.push_back(frame);
@@ -84,7 +84,7 @@ AVFrame* Splicer::MergeFrame(const std::vector<cv::Mat>& mats){
     return frame;
 }
 
-cv::Mat Splicer::cvmat_to_avframe(const cv::Mats image){
+AVFrame* Splicer::cvmat_to_avframe(const cv::Mat image){
     // TODO
 }
 
