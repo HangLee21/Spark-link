@@ -88,7 +88,26 @@ def tuple_to_list(t):
             result.append(item)
     return result
 
+def undistorted(path, index):
+    # 从文件中读取 JSON 数据
+    with open(f'../json/{index}.json', 'r') as file:
+        json_data = json.load(file)
+    camera_matrix = np.array(json_data["mtx"])
+    dist_coeffs = np.array(json_data["dist"])
+
+    # 读取原始图像
+    image = cv2.imread(path)
+
+    # 进行去畸变
+    undistorted_image = cv2.undistort(image, camera_matrix, dist_coeffs)
+
+    # 显示去畸变后的图像
+    cv2.imshow("Origin Image", image)
+    cv2.imshow('Undistorted Image', undistorted_image)
+    cv2.waitKey(0)
+
 
 if __name__ == '__main__':
     for i in range(3):
         get_data_json(i)
+    undistorted("../img/0_2.jpg", 0)
