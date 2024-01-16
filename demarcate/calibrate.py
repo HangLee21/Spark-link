@@ -4,7 +4,7 @@ import cv2
 import numpy as np
 import glob
 import json
-
+import argparse
 def get_data_json(index):
     # Defining the dimensions of checkerboard
     CHECKERBOARD = (5,8)
@@ -129,10 +129,7 @@ def get_fish_eye(path, index):
     cv2.waitKey(0)
 
 if __name__ == '__main__':
-    # for i in range(4):
-    #     get_data_json(i)
-    undistorted("../img/0_360.jpg", 0)
-    # undistorted("../img/1_210.jpg", 0)
-    # undistorted("../img/2_210.jpg", 0)
-    # undistorted("../img/3_210.jpg", 0)
-    # get_fish_eye("../img/0_420.jpg", 0)
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--image_path', type=str, help='video to rectify')
+    args = parser.parse_args()
+    undistorted(args.image_path, 0)

@@ -10,7 +10,7 @@
 
 const std::string file_path = "../json/";
 std::vector<std::string> json_name = {"0.json", "1.json", "2.json", "3.json"};
-std::vector<cv::Mat> camaraMatrixes = {};
+std::vector<cv::Mat> cameraMatrixes = {};
 std::vector<cv::Mat> distVectors = {};
 namespace gtoe_emulation {
 
@@ -36,16 +36,93 @@ Splicer::~Splicer()
 
 
 void Splicer::hard_encode_mat(){
-    // TODO
-    cv::Mat camara_mat;
-    camara_mat.create(3, 3, CV_64F);  // 创建一个3x3的单通道8位无符号整数矩阵
-    camara_mat.at<double>(0, 0) = 255;  // 赋值第一个像素为255
-    camaraMatrixes.push_back(camara_mat);
+    cv::Mat camara_mat_0;
+    camara_mat_0.create(3, 3, CV_64F);  // 创建一个3x3的单通道8位无符号整数矩阵
+    camara_mat_0.at<double>(0, 0) = 365.71645588482716;  // 赋值第一个像素为255
+    camara_mat_0.at<double>(0, 1) = 0.0;  // 赋值第一个像素为255
+    camara_mat_0.at<double>(0, 2) = 690.3554811474158;  // 赋值第一个像素为255
+    camara_mat_0.at<double>(1, 0) = 0.0;  // 赋值第一个像素为255
+    camara_mat_0.at<double>(1, 1) = 274.77928168180495;  // 赋值第一个像素为255
+    camara_mat_0.at<double>(1, 2) = 342.8503226467983;  // 赋值第一个像素为255
+    camara_mat_0.at<double>(2, 0) = 0.0;  // 赋值第一个像素为255
+    camara_mat_0.at<double>(2, 1) = 0.0;  // 赋值第一个像素为255
+    camara_mat_0.at<double>(2, 2) = 1.0;  // 赋值第一个像素为255
+    cameraMatrixes.push_back(camara_mat_0);
 
-    cv::Mat dist_mat;
-    dist_mat.create(5, 1, CV_64F);  // 创建一个3x3的单通道8位无符号整数矩阵
-    dist_mat.at<double>(0, 0) = 255;  // 赋值第一个像素为255
-    distVectors.push_back(dist_mat);
+    cv::Mat dist_mat_0;
+    dist_mat_0.create(5, 1, CV_64F);  // 创建一个3x3的单通道8位无符号整数矩阵
+    dist_mat_0.at<double>(0, 0) = -0.23416148966938685;  // 赋值第一个像素为255
+    dist_mat_0.at<double>(1, 0) = 0.0484646853675212;  // 赋值第一个像素为255
+    dist_mat_0.at<double>(2, 0) = 0.0026369026846284472;  // 赋值第一个像素为255
+    dist_mat_0.at<double>(3, 0) = 0.0013246980666203948;  // 赋值第一个像素为255
+    dist_mat_0.at<double>(4, 0) = -0.00399352748387932;  // 赋值第一个像素为255
+    distVectors.push_back(dist_mat_0);
+
+    cv::Mat camara_mat_1;
+    camara_mat_1.create(3, 3, CV_64F);  // 创建一个3x3的单通道8位无符号整数矩阵
+    camara_mat_1.at<double>(0, 0) = 373.9884786517187;  // 赋值第一个像素为255
+    camara_mat_1.at<double>(0, 1) = 0.0;  // 赋值第一个像素为255
+    camara_mat_1.at<double>(0, 2) = 664.4622453968176;  // 赋值第一个像素为255
+    camara_mat_1.at<double>(1, 0) = 0.0;  // 赋值第一个像素为255
+    camara_mat_1.at<double>(1, 1) = 131.06730496430424;  // 赋值第一个像素为255
+    camara_mat_1.at<double>(1, 2) = 214.69112984409753;  // 赋值第一个像素为255
+    camara_mat_1.at<double>(2, 0) = 0.0;  // 赋值第一个像素为255
+    camara_mat_1.at<double>(2, 1) = 0.0;  // 赋值第一个像素为255
+    camara_mat_1.at<double>(2, 2) = 1.0;  // 赋值第一个像素为255
+    cameraMatrixes.push_back(camara_mat_1);
+
+    cv::Mat dist_mat_1;
+    dist_mat_1.create(5, 1, CV_64F);  // 创建一个3x3的单通道8位无符号整数矩阵
+    dist_mat_1.at<double>(0, 0) = -0.21844755906734947;  // 赋值第一个像素为255
+    dist_mat_1.at<double>(1, 0) = -0.016874401855457532;  // 赋值第一个像素为255
+    dist_mat_1.at<double>(2, 0) = 0.2536237647137276;  // 赋值第一个像素为255
+    dist_mat_1.at<double>(3, 0) = 0.0035275474453427685;  // 赋值第一个像素为255
+    dist_mat_1.at<double>(4, 0) = 0.0038249029210460075;  // 赋值第一个像素为255
+    distVectors.push_back(dist_mat_1);
+
+    cv::Mat camara_mat_2;
+    camara_mat_2.create(3, 3, CV_64F);  // 创建一个3x3的单通道8位无符号整数矩阵
+    camara_mat_2.at<double>(0, 0) = 365.71645588482716;  // 赋值第一个像素为255
+    camara_mat_2.at<double>(0, 1) = 0.0;  // 赋值第一个像素为255
+    camara_mat_2.at<double>(0, 2) = 690.3554811474158;  // 赋值第一个像素为255
+    camara_mat_2.at<double>(1, 0) = 0.0;  // 赋值第一个像素为255
+    camara_mat_2.at<double>(1, 1) = 274.77928168180495;  // 赋值第一个像素为255
+    camara_mat_2.at<double>(1, 2) = 342.8503226467983;  // 赋值第一个像素为255
+    camara_mat_2.at<double>(2, 0) = 0.0;  // 赋值第一个像素为255
+    camara_mat_2.at<double>(2, 1) = 0.0;  // 赋值第一个像素为255
+    camara_mat_2.at<double>(2, 2) = 1.0;  // 赋值第一个像素为255
+    cameraMatrixes.push_back(camara_mat_2);
+
+    cv::Mat dist_mat_2;
+    dist_mat_2.create(5, 1, CV_64F);  // 创建一个3x3的单通道8位无符号整数矩阵
+    dist_mat_2.at<double>(0, 0) = -0.23416148966938685;  // 赋值第一个像素为255
+    dist_mat_2.at<double>(1, 0) = 0.0484646853675212;  // 赋值第一个像素为255
+    dist_mat_2.at<double>(2, 0) = 0.0026369026846284472;  // 赋值第一个像素为255
+    dist_mat_2.at<double>(3, 0) = 0.0013246980666203948;  // 赋值第一个像素为255
+    dist_mat_2.at<double>(4, 0) = -0.00399352748387932;  // 赋值第一个像素为255
+    distVectors.push_back(dist_mat_2);
+
+    cv::Mat camara_mat_3;
+    camara_mat_3.create(3, 3, CV_64F);  // 创建一个3x3的单通道8位无符号整数矩阵
+    camara_mat_3.at<double>(0, 0) = 365.71645588482716;  // 赋值第一个像素为255
+    camara_mat_3.at<double>(0, 1) = 0.0;  // 赋值第一个像素为255
+    camara_mat_3.at<double>(0, 2) = 690.3554811474158;  // 赋值第一个像素为255
+    camara_mat_3.at<double>(1, 0) = 0.0;  // 赋值第一个像素为255
+    camara_mat_3.at<double>(1, 1) = 274.77928168180495;  // 赋值第一个像素为255
+    camara_mat_3.at<double>(1, 2) = 342.8503226467983;  // 赋值第一个像素为255
+    camara_mat_3.at<double>(2, 0) = 0.0;  // 赋值第一个像素为255
+    camara_mat_3.at<double>(2, 1) = 0.0;  // 赋值第一个像素为255
+    camara_mat_3.at<double>(2, 2) = 1.0;  // 赋值第一个像素为255
+    cameraMatrixes.push_back(camara_mat_3);
+
+    cv::Mat dist_mat_3;
+    dist_mat_3.create(5, 1, CV_64F);  // 创建一个3x3的单通道8位无符号整数矩阵
+    dist_mat_3.at<double>(0, 0) = -0.23416148966938685;  // 赋值第一个像素为255
+    dist_mat_3.at<double>(1, 0) = 0.0484646853675212;  // 赋值第一个像素为255
+    dist_mat_3.at<double>(2, 0) = 0.0026369026846284472;  // 赋值第一个像素为255
+    dist_mat_3.at<double>(3, 0) = 0.0013246980666203948;  // 赋值第一个像素为255
+    dist_mat_3.at<double>(4, 0) = -0.00399352748387932;  // 赋值第一个像素为255
+    distVectors.push_back(dist_mat_3);
 }
 
 std::vector<AVFrame *> Splicer::Process(const std::vector<AVFrame *>& frames)
@@ -58,7 +135,7 @@ std::vector<AVFrame *> Splicer::Process(const std::vector<AVFrame *>& frames)
         // 读取原始图像
         cv::Mat distortedImage = avframe_to_cvmat(frames[i]);
 
-        cv::Mat cameraMatrix = camaraMatrixes[i];  // 替换为实际的相机矩阵
+        cv::Mat cameraMatrix = cameraMatrixes[i];  // 替换为实际的相机矩阵
         cv::Mat distortionCoefficients = distVectors[i];  // 替换为实际的畸变系数
 
         // 创建输出图像
