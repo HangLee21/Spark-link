@@ -5,9 +5,10 @@
 #include "splicer.h"
 #include <stdexcept>
 #include <bits/stdc++.h>
+#include <opencv2/opencv.hpp>
+#include "jsoncpp/json/json.h"
 
-
-const file_path = "../json/";
+const std::string file_path = "../json/";
 std::vector<std::string> json_name = {"0.json", "1.json", "2.json", "3.json"};
 std::vector<cv::Mat> camaraMatrixes = {};
 std::vector<cv::Mat> distVectors = {};
@@ -33,6 +34,20 @@ Splicer::~Splicer()
     }
 }
 
+
+void Splice::hard_encode_mat(){
+    // TODO
+    cv::Mat camara_mat;
+    camara_mat.create(3, 3, CV_64F);  // 创建一个3x3的单通道8位无符号整数矩阵
+    camara_mat.at<double>(0, 0) = 255;  // 赋值第一个像素为255
+    camaraMatrixes.push_back(camara_mat);
+
+    cv::Mat dist_mat;
+    dist_mat.create(5, 1, CV_64F);  // 创建一个3x3的单通道8位无符号整数矩阵
+    dist_mat.at<double>(0, 0) = 255;  // 赋值第一个像素为255
+    distVectors.push_back(dist_mat);
+}
+
 std::vector<AVFrame *> Splicer::Process(const std::vector<AVFrame *>& frames)
 {
     std::vector<AVFrame *> resultFrames;
@@ -41,8 +56,8 @@ std::vector<AVFrame *> Splicer::Process(const std::vector<AVFrame *>& frames)
     // read json
     for(int i = 0 ; i < 4; i++){
         // 读取原始图像
-        cv::Mat distortedImage = frame[0];
-    
+        cv::Mat distortedImage = avframe_to_cvmat(frames[i]);
+
         cv::Mat cameraMatrix = camaraMatrixes[i];  // 替换为实际的相机矩阵
         cv::Mat distortionCoefficients = distVectors[i];  // 替换为实际的畸变系数
 
@@ -51,7 +66,8 @@ std::vector<AVFrame *> Splicer::Process(const std::vector<AVFrame *>& frames)
 
         // 进行去畸变
         cv::undistort(distortedImage, undistortedImage, cameraMatrix, distortionCoefficients);
-        AVFrame* frame = mergeFrames.push_back(undistortedImage);
+        mergeFrames.push_back(undistortedImage);
+        frame = MergeFrame(mergeFrames);
     }
 
     // end merge
@@ -69,7 +85,7 @@ AVFrame* Splicer::MergeFrame(const std::vector<cv::Mat>& mats){
 }
 
 cv::Mat Splicer::cvmat_to_avframe(const cv::Mats image){
-    // TODO 
+    // TODO
 }
 
 cv::Mat Splicer::avframe_to_cvmat(AVFrame* frame){
