@@ -128,7 +128,7 @@ def get_fish_eye(path, index):
     cv2.waitKey(0)
 
 if __name__ == '__main__':
-    for i in range(3):
+    for i in range(4):
         get_data_json(i)
-    undistorted("../img/0_210.jpg", 0)
+    # undistorted("../img/0_210.jpg", 0)
     # get_fish_eye("../img/0_420.jpg", 0)
