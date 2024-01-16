@@ -131,5 +131,6 @@ def get_fish_eye(path, index):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--image_path', type=str, help='video to rectify')
+    parser.add_argument('--json_index', type=int, help='video to rectify')
     args = parser.parse_args()
-    undistorted(args.image_path, 0)
+    undistorted(args.image_path, args.json_index)

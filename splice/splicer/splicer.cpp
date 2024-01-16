@@ -144,7 +144,6 @@ std::vector<AVFrame *> Splicer::Process(const std::vector<AVFrame *>& frames)
         // 进行去畸变
         cv::undistort(distortedImage, undistortedImage, cameraMatrix, distortionCoefficients);
         mergeFrames.push_back(undistortedImage);
-        
     }
     frame = MergeFrame(mergeFrames);
     // end merge
