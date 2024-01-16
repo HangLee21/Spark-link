@@ -6,6 +6,8 @@
 #include <stdexcept>
 #include <bits/stdc++.h>
 
+const file_path = "../json/";
+std::vector<std::string> json_name = {"0.json", "1.json", "2.json", "3.json"};
 namespace gtoe_emulation {
 
 Splicer::Splicer(): rgb2yuvSwsCtx(NULL), width(-1),
@@ -31,14 +33,50 @@ Splicer::~Splicer()
 std::vector<AVFrame *> Splicer::Process(const std::vector<AVFrame *>& frames)
 {
     std::vector<AVFrame *> resultFrames;
-
+    std::vector<cv::Mat> mergeFrames;
     AVFrame* frame = Splice(frames);
+    // TODO start merge
+    // read json
+    for(int i = 0 ; i < 4; i++){
+        std::string json_file = file_path + json_name[i];
+        std::ifstream file(json_file);
+        if (!file.is_open()) {
+            std::cerr << "无法打开JSON文件" << std::endl;
+            return 1;
+        }
 
+        // 解析JSON文件
+        Json::Value root;
+        file >> root;
+
+        // 读取相机参数（畸变和相机矩阵）
+        // TODO 
+        // 读取原始图像
+        cv::Mat distortedImage = frame[0];
+
+        cv::Mat cameraMatrix = cv::Mat::eye(3, 3, CV_64F);  // 替换为实际的相机矩阵
+        cv::Mat distortionCoefficients = cv::Mat::zeros(5, 1, CV_64F);  // 替换为实际的畸变系数
+
+        // 创建输出图像
+        cv::Mat undistortedImage;
+
+        // 进行去畸变
+        cv::undistort(distortedImage, undistortedImage, cameraMatrix, distortionCoefficients);
+        AVFrame* frame = mergeFrames.push_back(undistortedImage);
+    }
+
+    // end merge
     if (frame) {
         resultFrames.push_back(frame);
     }
 
     return resultFrames;
+}
+
+AVFrame* Splicer::MergeFrame(const std::vector<cv::Mat>& mats){
+    AVFrame* frame = nullptr;
+    // TODO 
+    return frame;
 }
 
 AVFrame* Splicer::Splice(const std::vector<AVFrame *>& frames)
