@@ -24,6 +24,9 @@ private:
     AVFrame* SpliceOneRow(const std::vector<AVFrame *>& frames);
     AVFrame* SpliceTwoRows(const std::vector<AVFrame *>& frames);
     AVFrame* MergeFrame(const std::vector<cv::Mat>& mats);
+    cv::Mat avframe_to_cvmat(AVFrame* frame);
+    AVFrame* cvmat_to_avframe(const cv::Mats image);
+    
     int width;
     int height; // the height of the first row for the dst AVFrame
     int heightX; // the height of the second row for the dst AVFrame

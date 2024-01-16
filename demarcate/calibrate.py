@@ -130,5 +130,8 @@ def get_fish_eye(path, index):
 if __name__ == '__main__':
     for i in range(4):
         get_data_json(i)
-    # undistorted("../img/0_210.jpg", 0)
+    undistorted("../img/0_210.jpg", 0)
+    undistorted("../img/1_210.jpg", 0)
+    undistorted("../img/2_210.jpg", 0)
+    undistorted("../img/3_210.jpg", 0)
     # get_fish_eye("../img/0_420.jpg", 0)
