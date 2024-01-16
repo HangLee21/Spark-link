@@ -82,12 +82,12 @@ void Splicer::hard_encode_mat(){
 
     cv::Mat camara_mat_2;
     camara_mat_2.create(3, 3, CV_64F);  // 创建一个3x3的单通道8位无符号整数矩阵
-    camara_mat_2.at<double>(0, 0) = 365.71645588482716;  // 赋值第一个像素为255
+    camara_mat_2.at<double>(0, 0) = 354.4921697196074;  // 赋值第一个像素为255
     camara_mat_2.at<double>(0, 1) = 0.0;  // 赋值第一个像素为255
-    camara_mat_2.at<double>(0, 2) = 690.3554811474158;  // 赋值第一个像素为255
+    camara_mat_2.at<double>(0, 2) = 631.359415673472;  // 赋值第一个像素为255
     camara_mat_2.at<double>(1, 0) = 0.0;  // 赋值第一个像素为255
-    camara_mat_2.at<double>(1, 1) = 274.77928168180495;  // 赋值第一个像素为255
-    camara_mat_2.at<double>(1, 2) = 342.8503226467983;  // 赋值第一个像素为255
+    camara_mat_2.at<double>(1, 1) = 263.2563867498032;  // 赋值第一个像素为255
+    camara_mat_2.at<double>(1, 2) = 312.0320234604565;  // 赋值第一个像素为255
     camara_mat_2.at<double>(2, 0) = 0.0;  // 赋值第一个像素为255
     camara_mat_2.at<double>(2, 1) = 0.0;  // 赋值第一个像素为255
     camara_mat_2.at<double>(2, 2) = 1.0;  // 赋值第一个像素为255
@@ -95,21 +95,21 @@ void Splicer::hard_encode_mat(){
 
     cv::Mat dist_mat_2;
     dist_mat_2.create(5, 1, CV_64F);  // 创建一个3x3的单通道8位无符号整数矩阵
-    dist_mat_2.at<double>(0, 0) = -0.23416148966938685;  // 赋值第一个像素为255
-    dist_mat_2.at<double>(1, 0) = 0.0484646853675212;  // 赋值第一个像素为255
-    dist_mat_2.at<double>(2, 0) = 0.0026369026846284472;  // 赋值第一个像素为255
-    dist_mat_2.at<double>(3, 0) = 0.0013246980666203948;  // 赋值第一个像素为255
-    dist_mat_2.at<double>(4, 0) = -0.00399352748387932;  // 赋值第一个像素为255
+    dist_mat_2.at<double>(0, 0) = -0.2525602792580275;  // 赋值第一个像素为255
+    dist_mat_2.at<double>(1, 0) = 0.06777938800619913;  // 赋值第一个像素为255
+    dist_mat_2.at<double>(2, 0) = 0.001199961749514866;  // 赋值第一个像素为255
+    dist_mat_2.at<double>(3, 0) = -0.0004376986145580113;  // 赋值第一个像素为255
+    dist_mat_2.at<double>(4, 0) = -0.008158497446121587;  // 赋值第一个像素为255
     distVectors.push_back(dist_mat_2);
 
     cv::Mat camara_mat_3;
     camara_mat_3.create(3, 3, CV_64F);  // 创建一个3x3的单通道8位无符号整数矩阵
-    camara_mat_3.at<double>(0, 0) = 365.71645588482716;  // 赋值第一个像素为255
+    camara_mat_3.at<double>(0, 0) = 298.16809905743787;  // 赋值第一个像素为255
     camara_mat_3.at<double>(0, 1) = 0.0;  // 赋值第一个像素为255
-    camara_mat_3.at<double>(0, 2) = 690.3554811474158;  // 赋值第一个像素为255
+    camara_mat_3.at<double>(0, 2) = 668.6623659431037;  // 赋值第一个像素为255
     camara_mat_3.at<double>(1, 0) = 0.0;  // 赋值第一个像素为255
-    camara_mat_3.at<double>(1, 1) = 274.77928168180495;  // 赋值第一个像素为255
-    camara_mat_3.at<double>(1, 2) = 342.8503226467983;  // 赋值第一个像素为255
+    camara_mat_3.at<double>(1, 1) = 194.92743436219445;  // 赋值第一个像素为255
+    camara_mat_3.at<double>(1, 2) = 285.66734013539826;  // 赋值第一个像素为255
     camara_mat_3.at<double>(2, 0) = 0.0;  // 赋值第一个像素为255
     camara_mat_3.at<double>(2, 1) = 0.0;  // 赋值第一个像素为255
     camara_mat_3.at<double>(2, 2) = 1.0;  // 赋值第一个像素为255
@@ -117,11 +117,11 @@ void Splicer::hard_encode_mat(){
 
     cv::Mat dist_mat_3;
     dist_mat_3.create(5, 1, CV_64F);  // 创建一个3x3的单通道8位无符号整数矩阵
-    dist_mat_3.at<double>(0, 0) = -0.23416148966938685;  // 赋值第一个像素为255
-    dist_mat_3.at<double>(1, 0) = 0.0484646853675212;  // 赋值第一个像素为255
-    dist_mat_3.at<double>(2, 0) = 0.0026369026846284472;  // 赋值第一个像素为255
-    dist_mat_3.at<double>(3, 0) = 0.0013246980666203948;  // 赋值第一个像素为255
-    dist_mat_3.at<double>(4, 0) = -0.00399352748387932;  // 赋值第一个像素为255
+    dist_mat_3.at<double>(0, 0) = -0.15203735255507325;  // 赋值第一个像素为255
+    dist_mat_3.at<double>(1, 0) = 0.022393019553115786;  // 赋值第一个像素为255
+    dist_mat_3.at<double>(2, 0) = 0.0035329643078907164;  // 赋值第一个像素为255
+    dist_mat_3.at<double>(3, 0) = 0.004626616567290379;  // 赋值第一个像素为255
+    dist_mat_3.at<double>(4, 0) = -0.0014035543102246485;  // 赋值第一个像素为255
     distVectors.push_back(dist_mat_3);
 }
 
@@ -150,13 +150,12 @@ std::vector<AVFrame *> Splicer::Process(const std::vector<AVFrame *>& frames)
     if (frame) {
         resultFrames.push_back(frame);
     }
-
     return resultFrames;
 }
 
 AVFrame* Splicer::MergeFrame(const std::vector<cv::Mat>& mats){
-    AVFrame* frame = nullptr;
     // TODO 
+    AVFrame* frame = nullptr;
     return frame;
 }
 
