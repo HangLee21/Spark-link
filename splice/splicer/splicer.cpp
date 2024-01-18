@@ -138,12 +138,36 @@ std::vector<AVFrame *> Splicer::Process(const std::vector<AVFrame *>& frames)
     float *w_ptr[4];
     CameraPrms prms[4];
 
+    cv::Mat weights = cv::imread("./yaml/weights.png", -1);
+
+    if (weights.channels() != 4) {
+        std::cerr << "imread weights failed " << weights.channels() << "\r\n";
+        return -1;
+    }
+
+    for (int i = 0; i < 4; ++i) {
+        merge_weights_img[i] = cv::Mat(weights.size(), CV_32FC1, cv::Scalar(0, 0, 0));
+        w_ptr[i] = (float *)merge_weights_img[i].data;
+    }
+    //read weights of corner
+    int pixel_index = 0;
+    for (int h = 0; h < weights.rows; ++h) {
+        uchar* uc_pixel = weights.data + h * weights.step;
+        for (int w = 0; w < weights.cols; ++w) {
+            w_ptr[0][pixel_index] = uc_pixel[0] / 255.0f;
+            w_ptr[1][pixel_index] = uc_pixel[1] / 255.0f;
+            w_ptr[2][pixel_index] = uc_pixel[2] / 255.0f;
+            w_ptr[3][pixel_index] = uc_pixel[3] / 255.0f;
+            uc_pixel += 4;
+            ++pixel_index;
+        }
+    }
 
     //1. read calibration prms
     for (int i = 0; i < 4; ++i) {
         auto& prm = prms[i];
         prm.name = camera_names[i];
-        auto ok = read_prms("../yaml/" + prm.name + ".yaml", prm);
+        auto ok = read_prms("./yaml/" + prm.name + ".yaml", prm);
         if (!ok) {
             return -1;
         }
@@ -161,8 +185,9 @@ std::vector<AVFrame *> Splicer::Process(const std::vector<AVFrame *>& frames)
     for (int i = 0; i < 4; ++i) {
         auto& prm = prms[i];
         cv::Mat& src = origin_dir_img[i];
+        cv::Mat tmp = src.clone();
 
-        undist_by_remap(src, src, prm);
+        cv::undistort(tmp, src, prm.camera_matrix, prm.dist_coff);
         cv::warpPerspective(src, src, prm.project_matrix, project_shapes[prm.name]);
 
         if (camera_flip_mir[i] == "r+") {
@@ -172,6 +197,7 @@ std::vector<AVFrame *> Splicer::Process(const std::vector<AVFrame *>& frames)
         } else if (camera_flip_mir[i] == "m") {
             cv::rotate(src, src, cv::ROTATE_180);
         }
+        cv::rotate(src, src, cv::ROTATE_180);
         undist_dir_img[i] = src.clone();
     }
 
@@ -223,29 +249,6 @@ std::vector<AVFrame *> Splicer::Process(const std::vector<AVFrame *>& frames)
         resultFrames.push_back(frame);
     }
     return resultFrames;
-}
-
-//    // read json
-//    for(int i = 0 ; i < 4; i++){
-//        // 读取原始图像
-//        cv::Mat distortedImage = avframe_to_cvmat(frames[i]);
-//
-//        cv::Mat cameraMatrix = cameraMatrixes[i];  // 替换为实际的相机矩阵
-//        cv::Mat distortionCoefficients = distVectors[i];  // 替换为实际的畸变系数
-//
-//        // 创建输出图像
-//        cv::Mat undistortedImage;
-//
-//        // 进行去畸变
-//        cv::undistort(distortedImage, undistortedImage, cameraMatrix, distortionCoefficients);
-//        mergeFrames.push_back(undistortedImage);
-//    }
-//    frame = MergeFrame(mergeFrames);
-
-AVFrame* Splicer::MergeFrame(const std::vector<cv::Mat>& mats){
-    // TODO 
-    AVFrame* frame = nullptr;
-    return frame;
 }
 
 AVFrame* Splicer::cvmat_to_avframe(const cv::Mat image){

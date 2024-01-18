@@ -1,6 +1,14 @@
 import cv2
 import numpy as np
 import json
+import yaml
+
+
+name_dict = ['project_front', 'project_back', 'project_left', 'project_right']
+
+def represent_list(dumper, data):
+    # 将列表以[]形式输出
+    return dumper.represent_sequence('tag:yaml.org,2002:seq', data, flow_style=True)
 
 def main():
     #read the undistort image
@@ -18,7 +26,7 @@ def main():
         print('h=',h,'w=',w)
         #find the key point
         ratio=1280/10
-        a=75
+        a=175
 
         jsonfile='./location.json'
         with open(jsonfile,'r') as f:
@@ -52,6 +60,31 @@ def main():
         if key==27:
             #close all windows
             cv2.destroyAllWindows()
+
+    for i in range(4):
+        cmx = []
+        for j in proj_params[i]:
+            print(j)
+            for k in j:
+                cmx.append(k)
+        print(cmx)
+        yaml_dict = {
+            "project_matrix":  {
+                "rows": 3,
+                "cols": 3,
+                "dt": "d",
+                "data": cmx,
+            }
+        }
+
+        yaml.add_representer(list, representer=represent_list)
+        yaml_data = yaml.dump(yaml_dict, sort_keys=False)
+        # 将 JSON 写入文件
+        yaml_data_with_header = "%YAML:1.0\n---\n"+yaml_data
+        with open(f"./json/{name_dict[i]}.yaml", "w") as f:
+            f.write(yaml_data_with_header)
+
+
 
 
     with open(proj_file,'w') as f:
