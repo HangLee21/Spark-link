@@ -9,6 +9,9 @@ import yaml
 
 name_dict = ['front', 'back', 'left', 'right']
 
+def represent_list(dumper, data):
+    # 将列表以[]形式输出
+    return dumper.represent_sequence('tag:yaml.org,2002:seq', data, flow_style=True)
 
 def get_data_json(index):
     # Defining the dimensions of checkerboard
@@ -120,7 +123,7 @@ def get_data_json(index):
     }
     # 将字典对象转换为 JSON 格式
     json_data = json.dumps(dic)
-    yaml.add_representer(list, representer=rep_list)
+    yaml.add_representer(list, representer=represent_list)
     yaml_data = yaml.dump(yaml_dict)
     # 将 JSON 写入文件
     with open(f"../json/{index}.json", "w") as file:
