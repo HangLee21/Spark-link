@@ -58,7 +58,21 @@ def get_fish_data(index):
     cv2.destroyAllWindows()
 
     h, w = img.shape[:2]
-    ret, mtx, dist, rvecs, tvecs = cv2.fisheye.calibrate(objpoints, imgpoints, gray.shape[::-1],None,None)
+    calibration_flags = (cv2.fisheye.CALIB_RECOMPUTE_EXTRINSIC +
+                             cv2.fisheye.CALIB_CHECK_COND +
+                             cv2.fisheye.CALIB_FIX_SKEW)
+    K = np.zeros((3, 3))
+    D = np.zeros((4, 1))
+    ret, mtx, dist, rvecs, tvecs = cv2.fisheye.calibrate(
+                objpoints,
+                imgpoints,
+                (w, h),
+                K,
+                D,
+                rvecs,
+                tvecs,
+                calibration_flags,
+                (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 1e-6))
     # ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, gray.shape[::-1], None, None)
     dic = {
         "mtx": mtx.tolist(),
