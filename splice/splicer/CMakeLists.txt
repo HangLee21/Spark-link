@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.0)
 project(splicer LANGUAGES C CXX)
 
+find_package(OpenCV REQUIRED)
 # Use FFmpeg
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(
@@ -22,4 +23,5 @@ add_library(${PROJECT_NAME} SHARED ${SOURCES})
 target_link_libraries(${PROJECT_NAME}
     PRIVATE
     PkgConfig::ffmpeg
+    ${OpenCV_LIBS}
 )
