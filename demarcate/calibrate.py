@@ -81,7 +81,7 @@ def get_data_json(index):
         for j in i:
             dmx.append(j)
     yaml_dict = {
-        "camera_matrix":{
+        "camera_matrix":  {
             "rows": 3,
             "cols": 3,
             "dt": "d",
@@ -106,7 +106,7 @@ def get_data_json(index):
             "rows": 2,
             "cols": 1,
             "dt": "f",
-            "data": [],
+            "data": [0,0],
         },
         "scale_xy":{
             "rows": 2,
@@ -124,13 +124,13 @@ def get_data_json(index):
     # 将字典对象转换为 JSON 格式
     json_data = json.dumps(dic)
     yaml.add_representer(list, representer=represent_list)
-    yaml_data = yaml.dump(yaml_dict)
+    yaml_data = yaml.dump(yaml_dict, sort_keys=False)
     # 将 JSON 写入文件
     with open(f"../json/{index}.json", "w") as file:
         file.write(json_data)
-
+    yaml_data_with_header = "%YAML:1.0\n---\n"+yaml_data
     with open(f"../json/{name_dict[index]}.yaml", "w") as f:
-        f.write(yaml_data)
+        f.write(yaml_data_with_header)
 
 # 递归函数，将元组转换为列表
 def tuple_to_list(t):
@@ -150,7 +150,8 @@ def undistorted(path, index):
         json_data = json.load(file)
     camera_matrix = np.array(json_data["mtx"])
     dist_coeffs = np.array(json_data["dist"])
-
+    print(camera_matrix)
+    print(dist_coeffs)
     # 读取原始图像
     image = cv2.imread(path)
     if image is not None:
@@ -164,7 +165,7 @@ def undistorted(path, index):
     # 显示去畸变后的图像
     cv2.imshow("Origin Image", image)
     cv2.imshow('Undistorted Image', undistorted_image)
-    cv2.imwrite(f"undistorted_image_{index}.jpg", undistorted_image)
+    cv2.imwrite(f"undistorted_image_{index}.png", undistorted_image)
     cv2.waitKey(0)
 
 def get_fish_eye(path, index):
@@ -198,4 +199,5 @@ if __name__ == '__main__':
     parser.add_argument('--json_index', type=int, help='video to rectify')
     args = parser.parse_args()
     get_data_json(args.json_index)
+    undistorted(args.image_path, args.json_index)
     
