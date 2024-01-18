@@ -27,7 +27,7 @@ scale_xy:
   rows: 2
   cols: 1
   dt: f
-  data: [0, 0]
+  data: [1, 1]
 resolution:
   rows: 2
   cols: 1
