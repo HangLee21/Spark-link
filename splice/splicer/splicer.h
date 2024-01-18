@@ -5,7 +5,7 @@
 #pragma once
 
 #include "av_processor.h"
-
+#include "srcs/common.h"
 extern "C" {
 #include "libswscale/swscale.h"
 }
@@ -26,6 +26,7 @@ private:
     AVFrame* MergeFrame(const std::vector<cv::Mat>& mats);
     cv::Mat avframe_to_cvmat(AVFrame* frame);
     AVFrame* cvmat_to_avframe(const cv::Mat image);
+
     void hard_encode_mat();
     int width;
     int height; // the height of the first row for the dst AVFrame
