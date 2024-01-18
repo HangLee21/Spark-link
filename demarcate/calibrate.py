@@ -5,6 +5,11 @@ import numpy as np
 import glob
 import json
 import argparse
+import yaml
+
+name_dict = ['front', 'back', 'left', 'right']
+
+
 def get_data_json(index):
     # Defining the dimensions of checkerboard
     CHECKERBOARD = (5,8)
@@ -22,10 +27,11 @@ def get_data_json(index):
     prev_img_shape = None
 
     # Extracting path of individual image stored in a given directory
-    images = glob.glob(f'../img/{index}_*.jpg')
+    images = glob.glob(f'../img/{index}_*.png')
     if len(images) == 0:
+        print("no image")
         return
-
+    
     for fname in images:
         img = cv2.imread(fname)
         gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
@@ -55,13 +61,6 @@ def get_data_json(index):
     cv2.destroyAllWindows()
 
     h,w = img.shape[:2]
-
-    """
-    Performing camera calibration by 
-    passing the value of known 3D points (objpoints)
-    and corresponding pixel coordinates of the 
-    detected corners (imgpoints)
-    """
     # ret, mtx, dist, rvecs, tvecs = cv2.fisheye.calibrate(objpoints, imgpoints, gray.shape[::-1],None,None)
     ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, gray.shape[::-1], None, None)
     dic = {
@@ -70,13 +69,66 @@ def get_data_json(index):
         "rvecs": tuple_to_list(rvecs),
         "tvecs": tuple_to_list(tvecs)
     }
-
+    cmx = []
+    for i in mtx.tolist():
+        for j in i:
+            cmx.append(j)
+    dmx = []
+    for i in dist.tolist():
+        for j in i:
+            dmx.append(j)
+    yaml_dict = {
+        "camera_matrix":{
+            "rows": 3,
+            "cols": 3,
+            "dt": "d",
+            "data": cmx,
+        },
+        "dist_coeffs":{
+            "rows": 5,
+            "cols": 1,
+            "dt": "d",
+            "data": dmx,
+        },
+        "project_matrix":{
+            "rows": 3,
+            "cols": 3,
+            "dt": "d",
+            "data": [-9.3070874510219026e-01, -4.1405550648825917e+00,
+                    1.1216126052183415e+03, 1.3669740891976151e-01,
+                    -4.6651507085268138e+00, 1.0607568570787648e+03,
+                    2.8474752086329793e-04, -6.8625514942363052e-03, 1. ],
+        },
+        "shift_xy":{
+            "rows": 2,
+            "cols": 1,
+            "dt": "f",
+            "data": [],
+        },
+        "scale_xy":{
+            "rows": 2,
+            "cols": 1,
+            "dt": "f",
+            "data": [0,0],
+        },
+        "resolution":{
+            "rows": 2,
+            "cols": 1,
+            "dt": "i",
+            "data": [1280, 720],
+        }
+    }
     # 将字典对象转换为 JSON 格式
     json_data = json.dumps(dic)
-
+    yaml.add_representer(list, representer=rep_list)
+    yaml_data = yaml.dump(yaml_dict)
     # 将 JSON 写入文件
     with open(f"../json/{index}.json", "w") as file:
         file.write(json_data)
+
+    with open(f"../json/{name_dict[index]}.yaml", "w") as f:
+        f.write(yaml_data)
+
 # 递归函数，将元组转换为列表
 def tuple_to_list(t):
     result = []
@@ -142,5 +194,5 @@ if __name__ == '__main__':
     parser.add_argument('--image_path', type=str, help='video to rectify')
     parser.add_argument('--json_index', type=int, help='video to rectify')
     args = parser.parse_args()
-    #get_data_json(args.json_index)
-    undistorted(args.image_path, args.json_index)
+    get_data_json(args.json_index)
+    

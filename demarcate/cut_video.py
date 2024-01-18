@@ -213,7 +213,7 @@ class CameraCalibrator(object):
             print("Process: {}%: [".format(i * 100 / int(frame_count)), '#'* (i // 40) + " " * ((int(frame_count)-i) // 40) + ']', end="")
             sys.stdout.flush()
             if(success and i % 30 == 0):
-                cv.imwrite(f'../img/{video_name}_{i}.jpg', img)
+                cv.imwrite(f'../img/{video_name}_{i}.png', img)
 
 
 if __name__ == '__main__':
