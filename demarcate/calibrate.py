@@ -63,6 +63,8 @@ def get_fish_data(index):
                              cv2.fisheye.CALIB_FIX_SKEW)
     K = np.zeros((3, 3))
     D = np.zeros((4, 1))
+    rvecs = [np.zeros((1, 1, 3), dtype=np.float64) for _ in range(N_OK)]
+    tvecs = [np.zeros((1, 1, 3), dtype=np.float64) for _ in range(N_OK)]
     ret, mtx, dist, rvecs, tvecs = cv2.fisheye.calibrate(
                 objpoints,
                 imgpoints,
