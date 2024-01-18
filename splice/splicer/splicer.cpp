@@ -12,6 +12,8 @@ const std::string file_path = "../json/";
 std::vector<std::string> json_name = {"0.json", "1.json", "2.json", "3.json"};
 std::vector<cv::Mat> cameraMatrixes = {};
 std::vector<cv::Mat> distVectors = {};
+// TODO
+std::vector<cv::Mat> shadowMatrixes = {};
 namespace gtoe_emulation {
 
 Splicer::Splicer(): rgb2yuvSwsCtx(NULL), width(-1),
@@ -195,10 +197,10 @@ AVFrame* Splicer::cvmat_to_avframe(const cv::Mat image){
 
     //执行颜色空间转换
     cv::Mat bgr_image;
-    cv::cvtColor(image, bgr_image, CV::COLOR_RGB2BGR);
+    cv::cvtColor(image, bgr_image, cv::COLOR_RGB2BGR);
     const uint8_t* src_data[1]  = { bgr_image.data}; 
     int src_linesize[1] = {static_cast<int>(bgr_image.step)};
-    sws_scale(sws_ctx, src_data, src_linesize, 0, converted_data, converted_linesize);
+    sws_scale(sws_ctx, src_data, src_linesize, 0, height, converted_data, converted_linesize);
 
     // 释放
     sws_freeContext(sws_ctx);

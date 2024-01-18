@@ -98,6 +98,10 @@ def undistorted(path, index):
 
     # 读取原始图像
     image = cv2.imread(path)
+    if image is not None:
+        print('success')
+    else:
+        print('Fail to read the image!')
 
     # 进行去畸变
     undistorted_image = cv2.undistort(image, camera_matrix, dist_coeffs)
@@ -105,7 +109,7 @@ def undistorted(path, index):
     # 显示去畸变后的图像
     cv2.imshow("Origin Image", image)
     cv2.imshow('Undistorted Image', undistorted_image)
-    cv2.imwrite("undistorted_image.jpg", undistorted_image)
+    cv2.imwrite(f"undistorted_image_{index}.jpg", undistorted_image)
     cv2.waitKey(0)
 
 def get_fish_eye(path, index):
@@ -124,13 +128,19 @@ def get_fish_eye(path, index):
     image = cv2.imread(path)  # 读取待去畸变的图像
 
     undistorted_image = cv2.remap(image, map1, map2, interpolation=cv2.INTER_LINEAR)  # 进行去畸变
-    cv2.imshow("Origin Image", image)
-    cv2.imshow('Undistorted Image', undistorted_image)
-    cv2.waitKey(0)
+    cv2.imshow("Origin Image,press ESC to close", image)
+    cv2.imshow('Undistorted Image,press ESC to close', undistorted_image)
+    
+    key=cv2.waitKey(0)
+    
+    if key==27:
+        #close all windows
+        cv2.destroyAllWindows()
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--image_path', type=str, help='video to rectify')
     parser.add_argument('--json_index', type=int, help='video to rectify')
     args = parser.parse_args()
+    #get_data_json(args.json_index)
     undistorted(args.image_path, args.json_index)
