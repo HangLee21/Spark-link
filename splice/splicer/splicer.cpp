@@ -7,12 +7,11 @@
 #include <bits/stdc++.h>
 #include <opencv2/opencv.hpp>
 #include "jsoncpp/json/json.h"
-
+#include <fstream>
 const std::string file_path = "../json/";
 std::vector<std::string> json_name = {"0.json", "1.json", "2.json", "3.json"};
 std::vector<cv::Mat> cameraMatrixes = {};
 std::vector<cv::Mat> distVectors = {};
-// TODO
 std::vector<cv::Mat> shadowMatrixes = {};
 namespace gtoe_emulation {
 
@@ -129,56 +128,41 @@ void Splicer::hard_encode_mat(){
 
 std::vector<AVFrame *> Splicer::Process(const std::vector<AVFrame *>& frames)
 {
+
     std::vector<AVFrame *> resultFrames;
-    AVFrame* frame = Splice(frames);
+
+    //AVFrame* frame = Splice(frames);
+    
     cv::Mat origin_dir_img[4];
     cv::Mat undist_dir_img[4];
     cv::Mat merge_weights_img[4];
     cv::Mat out_put_img;
-    float *w_ptr[4];
+    
     CameraPrms prms[4];
-
-    cv::Mat weights = cv::imread("./yaml/weights.png", -1);
-
-    if (weights.channels() != 4) {
-        std::cerr << "imread weights failed " << weights.channels() << "\r\n";
-        return -1;
-    }
-
+    
+    out_put_img = cv::Mat(cv::Size(total_w, total_h), CV_8UC3, cv::Scalar(0, 0, 0));
+    
     for (int i = 0; i < 4; ++i) {
-        merge_weights_img[i] = cv::Mat(weights.size(), CV_32FC1, cv::Scalar(0, 0, 0));
-        w_ptr[i] = (float *)merge_weights_img[i].data;
+        merge_weights_img[i] = cv::Mat(cv::Size(550, 500), CV_32FC1, cv::Scalar(0, 0, 0));
     }
-    //read weights of corner
-    int pixel_index = 0;
-    for (int h = 0; h < weights.rows; ++h) {
-        uchar* uc_pixel = weights.data + h * weights.step;
-        for (int w = 0; w < weights.cols; ++w) {
-            w_ptr[0][pixel_index] = uc_pixel[0] / 255.0f;
-            w_ptr[1][pixel_index] = uc_pixel[1] / 255.0f;
-            w_ptr[2][pixel_index] = uc_pixel[2] / 255.0f;
-            w_ptr[3][pixel_index] = uc_pixel[3] / 255.0f;
-            uc_pixel += 4;
-            ++pixel_index;
-        }
-    }
-
+    
     //1. read calibration prms
     for (int i = 0; i < 4; ++i) {
         auto& prm = prms[i];
         prm.name = camera_names[i];
-        auto ok = read_prms("./yaml/" + prm.name + ".yaml", prm);
-        if (!ok) {
-            return -1;
+        int zeroCount = cv::countNonZero(prm.camera_matrix);
+        if(zeroCount == 0){
+            auto ok = read_prms("/home/sparklink/Downloads/data/" + prm.name + ".yaml", prm);
+            if (!ok) {
+                return std::vector<AVFrame *>();
+            }
         }
     }
-
+    
     // 2.avframe to cvmat
-    std::vector<cv::Mat*> srcs;
     for(int i = 0 ; i < 4; i++){
         cv::Mat distortedImage = avframe_to_cvmat(frames[i]);
         origin_dir_img[i] = distortedImage;
-        srcs.push_back(distortedImage);
     }
 
     //3. undistort image
@@ -200,9 +184,9 @@ std::vector<AVFrame *> Splicer::Process(const std::vector<AVFrame *>& frames)
         cv::rotate(src, src, cv::ROTATE_180);
         undist_dir_img[i] = src.clone();
     }
-
+    
+    
     //4.start combine
-    std::cout  << argv[0] << " app start combine" << std::endl;
     //4.1 out_put_img center copy
     for (int i = 0; i < 4; ++i) {
         cv::Rect roi;
@@ -225,6 +209,7 @@ std::vector<AVFrame *> Splicer::Process(const std::vector<AVFrame *>& frames)
             undist_dir_img[i](roi).copyTo(out_put_img(cv::Rect(xl, yb, xr - xl, yt)));
         }
     }
+    
     //4.2the four corner merge
     //w: 0 左下 1 右上 2 左上 3 左下
     //image: "front", "left", "back", "right"
@@ -242,7 +227,8 @@ std::vector<AVFrame *> Splicer::Process(const std::vector<AVFrame *>& frames)
     roi = cv::Rect(xr, 0, xl, yt);
     merge_image(undist_dir_img[2](roi), undist_dir_img[3](cv::Rect(0, yb, xl, yt)), merge_weights_img[3], out_put_img(cv::Rect(xr, yb, xl, yt)));
 
-    frame = cvmat_to_avframe(out_put_img);
+    cv::flip(out_put_img, out_put_img, 1);
+    AVFrame* frame = cvmat_to_avframe(out_put_img);
 
     // end merge
     if (frame) {
@@ -270,7 +256,7 @@ AVFrame* Splicer::cvmat_to_avframe(const cv::Mat image){
     }
 
     //创建sws context以进行颜色空间转换
-    SwsContext* sws_ctx = sws_getContext(width, height, AV_PIX_FMT_RGB24, width, height, AV_PIX_FMT_YUV420P, nullptr, nullptr, nullptr);
+    SwsContext* sws_ctx = sws_getContext(width, height, AV_PIX_FMT_RGB24, width, height, AV_PIX_FMT_YUV420P, 0, nullptr, nullptr, nullptr);
     if (!sws_ctx){
         throw std::runtime_error("Failed to create SwsContext");
     }
@@ -744,3 +730,175 @@ extern "C" gtoe_emulation::AVProcessor* CreateSplicer()
 {
     return new gtoe_emulation::Splicer();
 }
+
+void display_mat(cv::Mat& img, std::string name)
+{
+    cv::imshow(name, img);
+    cv::waitKey();
+}
+
+//read cali prms
+bool read_prms(const std::string& path, CameraPrms& prms)
+{
+    cv::FileStorage fs(path, cv::FileStorage::READ);
+
+    if (!fs.isOpened()) {
+        throw std::string("error open file");
+        return false;
+    }
+    
+    prms.camera_matrix  = fs["camera_matrix"].mat();
+    prms.dist_coff      = fs["dist_coeffs"].mat();
+    prms.project_matrix = fs["project_matrix"].mat();
+    prms.shift_xy       = fs["shift_xy"].mat();
+    prms.scale_xy       = fs["scale_xy"].mat();
+    auto size_          = fs["resolution"].mat();
+    prms.size           = cv::Size(size_.at<int>(0), size_.at<int>(1));
+
+    fs.release();
+    
+    return true;
+}
+//save cali prms
+bool save_prms(const std::string& path, CameraPrms& prms)
+{
+    cv::FileStorage fs(path, cv::FileStorage::WRITE);
+
+    if (!fs.isOpened()) {
+        throw std::string("error open file");
+        return false;
+    }
+    
+    if (!prms.project_matrix.empty())
+        fs << "project_matrix" << prms.project_matrix;
+
+    fs.release();
+    
+    return true;
+}
+
+//undist image by remap
+void undist_by_remap(const cv::Mat& src, cv::Mat& dst, const CameraPrms& prms)
+{
+    //get new camera matrix
+    cv::Mat new_camera_matrix = prms.camera_matrix.clone();
+    double* matrix_data = (double *)new_camera_matrix.data;
+
+    const auto scale = (const float *)(prms.scale_xy.data);
+    const auto shift = (const float * )(prms.shift_xy.data);
+
+    if (!matrix_data || !scale || !shift) {
+        return;
+    }
+
+    matrix_data[0]         *=  (double)scale[0];
+    matrix_data[3 * 1 + 1] *=  (double)scale[1];
+    matrix_data[2]         +=  (double)shift[0];
+    matrix_data[1 * 3 + 2] +=  (double)shift[1];
+    //std::cout << new_camera_matrix;
+    //undistort
+    cv::Mat map1, map2;
+    cv::fisheye::initUndistortRectifyMap(prms.camera_matrix, prms.dist_coff, cv::Mat(), new_camera_matrix, prms.size , CV_16SC2, map1, map2);
+    
+    cv::remap(src, dst, map1, map2, cv::INTER_LINEAR, cv::BORDER_CONSTANT);   
+}
+
+//merge image by weights
+void merge_image(const cv::Mat& src1, const cv::Mat& src2, const cv::Mat& w, const cv::Mat& out)
+{
+    if (src1.size() != src2.size()) {
+        return;
+    }
+
+    int p_index = 0;
+    float* weights = (float *)(w.data);
+    for (int h = 0; h < src1.rows; ++h) {
+        uchar* p1 = src1.data + h * src1.step;
+        uchar* p2 = src2.data + h * src2.step;
+        uchar*  o = out.data + h * out.step;
+        for (int w = 0; w < src1.cols; ++w) {
+            // o[0] = clip<uint8_t>(p1[0] * weights[p_index] + p2[0] * (1 - weights[p_index]), 255);
+            // o[1] = clip<uint8_t>(p1[1] * weights[p_index] + p2[1] * (1 - weights[p_index]), 255);
+            // o[2] = clip<uint8_t>(p1[2] * weights[p_index] + p2[2] * (1 - weights[p_index]), 255);
+            o[0] = clip<uint8_t>(p1[0] * 1 + p2[0] * 1, 255);
+            o[1] = clip<uint8_t>(p1[1] * 1 + p2[1] * 1, 255);
+            o[2] = clip<uint8_t>(p1[2] * 1 + p2[2] * 1, 255);
+            p1 += 3;
+            p2 += 3;
+            o  += 3;
+            ++p_index;
+        }
+    }
+}
+
+//r g b channel statics
+void rgb_info_statics(cv::Mat& src, BgrSts& sts)
+{
+    int nums = src.rows * src.cols;
+
+    sts.b = sts.r = sts.g = 0;
+
+    for (int h = 0; h < src.rows; ++h) {
+        uchar* uc_pixel = src.data + h * src.step;
+        for (int w = 0; w < src.cols; ++w) {
+            sts.b += uc_pixel[0];
+            sts.g += uc_pixel[1];
+            sts.r += uc_pixel[2];
+            uc_pixel += 3;
+        }
+    }
+
+    sts.b /= nums;
+    sts.r /= nums;
+    sts.g /= nums;
+}
+
+//r g b digtial gain
+void rgb_dgain(cv::Mat& src, float r_gain, float g_gain, float b_gain)
+{
+    if (src.empty()) {
+        return;
+    }
+    for (int h = 0; h < src.rows; ++h) {
+        uchar* uc_pixel = src.data + h * src.step;
+        for (int w = 0; w < src.cols; ++w) {
+            uc_pixel[0]  = clip<uint8_t>(uc_pixel[0] * b_gain, 255);
+            uc_pixel[1]  = clip<uint8_t>(uc_pixel[1] * g_gain, 255);
+            uc_pixel[2]  = clip<uint8_t>(uc_pixel[2] * r_gain, 255);
+            uc_pixel += 3;
+        }
+    }
+}
+
+//gray world awb amd lum banlance for four channeal images
+void awb_and_lum_banlance(std::vector<cv::Mat*> srcs)
+{
+    BgrSts sts[4];
+    int    gray[4] = {0, 0, 0, 0};
+    float    gray_ave = 0;
+
+    if (srcs.size() != 4) {
+        return;
+    }
+
+    for (int i = 0; i < 4; ++i) {
+        if (srcs[i] == nullptr) {
+            return;
+        }
+        rgb_info_statics(*srcs[i], sts[i]);
+        gray[i] = sts[i].r * 20 + sts[i].g * 60 + sts[i].b;
+        gray_ave += gray[i];
+    }
+    
+    gray_ave /= 4;
+
+    for (int i = 0; i < 4; ++i) {
+        float lum_gain = gray_ave / gray[i];
+        float r_gain = sts[i].g * lum_gain / sts[i].r;
+        float g_gain = lum_gain;
+        float b_gain = sts[i].g * lum_gain / sts[i].b;
+        //std::cout << "gains : " << r_gain << " | " << g_gain << " | " << b_gain << "\r\n";
+        rgb_dgain(*srcs[i], r_gain, g_gain, b_gain);
+    }
+}
+

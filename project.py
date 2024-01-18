@@ -19,14 +19,14 @@ def main():
     proj_params={}
 
     for i in range(0,4):
-        img = cv2.imread(img_path+str(i)+'.jpg')
+        img = cv2.imread(img_path+str(i)+'.png')
 
         #get height and width
         h,w,channes=img.shape
         print('h=',h,'w=',w)
         #find the key point
         ratio=1280/10
-        a=175
+        a=200
 
         jsonfile='./location.json'
         with open(jsonfile,'r') as f:
