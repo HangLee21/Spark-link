@@ -63,8 +63,8 @@ def get_fish_data(index):
                              cv2.fisheye.CALIB_FIX_SKEW)
     K = np.zeros((3, 3))
     D = np.zeros((4, 1))
-    rvecs = [np.zeros((1, 1, 3), dtype=np.float64) for _ in range(N_OK)]
-    tvecs = [np.zeros((1, 1, 3), dtype=np.float64) for _ in range(N_OK)]
+    rvecs = [np.zeros((1, 1, 3), dtype=np.float64) for _ in range(len(objpoints))]
+    tvecs = [np.zeros((1, 1, 3), dtype=np.float64) for _ in range(len(objpoints))]
     ret, mtx, dist, rvecs, tvecs = cv2.fisheye.calibrate(
                 objpoints,
                 imgpoints,
@@ -236,7 +236,7 @@ def get_data_json(index):
             "rows": 2,
             "cols": 1,
             "dt": "f",
-            "data": [0,0],
+            "data": [1,1],
         },
         "resolution":{
             "rows": 2,
@@ -294,7 +294,7 @@ def undistorted(path, index):
 
 def get_fish_eye(path, index):
     # 从文件中读取 JSON 数据
-    with open(f'../json/{index}.json', 'r') as file:
+    with open(f'../json/eye_{index}.json', 'r') as file:
         json_data = json.load(file)
     camera_matrix = np.array(json_data["mtx"])
     dist_coeffs = np.array(json_data["dist"])
@@ -308,7 +308,7 @@ def get_fish_eye(path, index):
     undistorted_image = cv2.remap(image, map1, map2, interpolation=cv2.INTER_LINEAR)  # 进行去畸变
     cv2.imshow("Origin Image,press ESC to close", image)
     cv2.imshow('Undistorted Image,press ESC to close', undistorted_image)
-    
+    cv2.imwrite(f"undistorted_image_{index}_eye.png", undistorted_image)
     key=cv2.waitKey(0)
     
     if key==27:
@@ -320,7 +320,8 @@ if __name__ == '__main__':
     parser.add_argument('--image_path', type=str, help='video to rectify')
     parser.add_argument('--json_index', type=int, help='video to rectify')
     args = parser.parse_args()
-    get_data_json(args.json_index)
-    get_fish_data(args.json_index)
+    # get_data_json(args.json_index)
+    # get_fish_data(args.json_index)
     #undistorted(args.image_path, args.json_index)
+    get_fish_eye(args.image_path, args.json_index)
     

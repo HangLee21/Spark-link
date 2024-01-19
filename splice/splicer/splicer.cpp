@@ -137,13 +137,37 @@ std::vector<AVFrame *> Splicer::Process(const std::vector<AVFrame *>& frames)
     cv::Mat undist_dir_img[4];
     cv::Mat merge_weights_img[4];
     cv::Mat out_put_img;
-    
     CameraPrms prms[4];
-    
+
+
     out_put_img = cv::Mat(cv::Size(total_w, total_h), CV_8UC3, cv::Scalar(0, 0, 0));
-    
+
+    float *w_ptr[4];
+
+    out_put_img = cv::Mat(cv::Size(total_w, total_h), CV_8UC3, cv::Scalar(0, 0, 0));
+    cv::Mat weights = cv::imread("/home/sparklink/Downloads/data/weights.png", -1);
+
+    if (weights.channels() != 4) {
+        std::cerr << "imread weights failed " << weights.channels() << "\r\n";
+        return std::vector<AVFrame *>();
+    }
+
     for (int i = 0; i < 4; ++i) {
-        merge_weights_img[i] = cv::Mat(cv::Size(550, 500), CV_32FC1, cv::Scalar(0, 0, 0));
+        merge_weights_img[i] = cv::Mat(weights.size(), CV_32FC1, cv::Scalar(0, 0, 0));
+        w_ptr[i] = (float *)merge_weights_img[i].data;
+    }
+    //read weights of corner
+    int pixel_index = 0;
+    for (int h = 0; h < weights.rows; ++h) {
+        uchar* uc_pixel = weights.data + h * weights.step;
+        for (int w = 0; w < weights.cols; ++w) {
+            w_ptr[0][pixel_index] = uc_pixel[0] / 255.0f;
+            w_ptr[1][pixel_index] = uc_pixel[1] / 255.0f;
+            w_ptr[2][pixel_index] = uc_pixel[2] / 255.0f;
+            w_ptr[3][pixel_index] = uc_pixel[3] / 255.0f;
+            uc_pixel += 4;
+            ++pixel_index;
+        }
     }
     
     //1. read calibration prms
@@ -152,7 +176,7 @@ std::vector<AVFrame *> Splicer::Process(const std::vector<AVFrame *>& frames)
         prm.name = camera_names[i];
         int zeroCount = cv::countNonZero(prm.camera_matrix);
         if(zeroCount == 0){
-            auto ok = read_prms("/home/sparklink/Downloads/data/" + prm.name + ".yaml", prm);
+            auto ok = read_prms("/home/sparklink/Downloads/data/eye_" + prm.name + ".yaml", prm);
             if (!ok) {
                 return std::vector<AVFrame *>();
             }
@@ -169,9 +193,8 @@ std::vector<AVFrame *> Splicer::Process(const std::vector<AVFrame *>& frames)
     for (int i = 0; i < 4; ++i) {
         auto& prm = prms[i];
         cv::Mat& src = origin_dir_img[i];
-        cv::Mat tmp = src.clone();
 
-        cv::undistort(tmp, src, prm.camera_matrix, prm.dist_coff);
+        undist_by_remap(src, src, prm);
         cv::warpPerspective(src, src, prm.project_matrix, project_shapes[prm.name]);
 
         if (camera_flip_mir[i] == "r+") {
@@ -817,12 +840,12 @@ void merge_image(const cv::Mat& src1, const cv::Mat& src2, const cv::Mat& w, con
         uchar* p2 = src2.data + h * src2.step;
         uchar*  o = out.data + h * out.step;
         for (int w = 0; w < src1.cols; ++w) {
-            // o[0] = clip<uint8_t>(p1[0] * weights[p_index] + p2[0] * (1 - weights[p_index]), 255);
-            // o[1] = clip<uint8_t>(p1[1] * weights[p_index] + p2[1] * (1 - weights[p_index]), 255);
-            // o[2] = clip<uint8_t>(p1[2] * weights[p_index] + p2[2] * (1 - weights[p_index]), 255);
-            o[0] = clip<uint8_t>(p1[0] * 1 + p2[0] * 1, 255);
-            o[1] = clip<uint8_t>(p1[1] * 1 + p2[1] * 1, 255);
-            o[2] = clip<uint8_t>(p1[2] * 1 + p2[2] * 1, 255);
+            o[0] = clip<uint8_t>(p1[0] * weights[p_index] + p2[0] * (1 - weights[p_index]), 255);
+            o[1] = clip<uint8_t>(p1[1] * weights[p_index] + p2[1] * (1 - weights[p_index]), 255);
+            o[2] = clip<uint8_t>(p1[2] * weights[p_index] + p2[2] * (1 - weights[p_index]), 255);
+            // o[0] = clip<uint8_t>(p1[0] * 1 + p2[0] * 1, 255);
+            // o[1] = clip<uint8_t>(p1[1] * 1 + p2[1] * 1, 255);
+            // o[2] = clip<uint8_t>(p1[2] * 1 + p2[2] * 1, 255);
             p1 += 3;
             p2 += 3;
             o  += 3;

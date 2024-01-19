@@ -19,7 +19,9 @@ def main():
     proj_params={}
 
     for i in range(0,4):
-        img = cv2.imread(img_path+str(i)+'.png')
+        #img = cv2.imread(img_path+str(i)+'.png')
+
+        img = cv2.imread(img_path+str(i)+'_eye.png')
 
         #get height and width
         h,w,channes=img.shape
